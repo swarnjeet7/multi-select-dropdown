@@ -1,0 +1,14 @@
+.select-label {
+  display: block;
+  padding: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.select-label:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.select + .select {
+  border-top: 1px solid rgba(0, 0, 0, 0.2);
+}
