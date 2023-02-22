@@ -9,10 +9,15 @@ function Select({ text, onClick }) {
   }
 
   return (
-    <div className="select">
+    <div className="select" aria-label="multi-select">
       <label className="select-label">
-        <input type="checkbox" ref={inputRef} onClick={handleClick} />
-        <span>{text}</span>
+        <input
+          type="checkbox"
+          ref={inputRef}
+          onClick={handleClick}
+          aria-label="multi-select-checkbox"
+        />
+        <span aria-label="multi-select-text">{text}</span>
       </label>
     </div>
   );

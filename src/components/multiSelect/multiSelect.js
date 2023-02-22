@@ -5,15 +5,23 @@ import "./multiSelect.css";
 
 let initialFlag = true;
 
-function MultiSelect({ isCacheAble = true, fetchConfig }) {
+function MultiSelect({
+  isCacheAble = true,
+  fetchConfig,
+  selectedValue,
+  setSelectedValue,
+}) {
   const [options, setOptions] = useState([]);
   const [value, setValue] = useState("");
-  const [selectedValue, setSelectedValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (initialFlag) return;
+    setIsLoading(true);
+    const controller = new AbortController();
+    const signal = controller.signal;
     const url = fetchConfig.url.replace(fetchConfig.param, value);
-    fetch(url)
+    fetch(url, { signal })
       .then((res) => res.json())
       .then((res) => {
         if (res.count) {
@@ -21,8 +29,14 @@ function MultiSelect({ isCacheAble = true, fetchConfig }) {
         } else {
           setOptions([]);
         }
+        setIsLoading(false);
+      })
+      .catch(() => {
+        setIsLoading(false);
       });
-  }, [value]);
+
+    return () => controller.abort();
+  }, [value, fetchConfig.param, fetchConfig.url]);
 
   function handleOnSelect(text, isAddable) {
     if (isAddable) {
@@ -52,24 +66,31 @@ function MultiSelect({ isCacheAble = true, fetchConfig }) {
   }
 
   return (
-    <div className="multiSelect">
-      <div className="multiSelect-input">
+    <div className="multiSelect" aria-label="multi-select-dropdown">
+      <div className="multiSelect-input" aria-label="multi-select-input">
         {selectedValue ? (
           <div className="multiSelect-values">{selectedValue}</div>
         ) : (
-          <input type="text" value={value} onChange={handleInputChange} />
+          <input
+            type="text"
+            value={value}
+            onChange={handleInputChange}
+            aria-label="multi-select-search"
+          />
         )}
       </div>
-      {options.length ? (
-        <div className="multiSelect-options">
-          {options.map((option, i) => {
+      <div className="multiSelect-options" aria-label="multi-select-options">
+        {isLoading ? (
+          <div className="mulitSelect-loading">Loading...</div>
+        ) : options.length ? (
+          options.map((option, i) => {
             const key = `${option.API}${i}`;
             return (
               <Select key={key} text={option.API} onClick={handleOnSelect} />
             );
-          })}
-        </div>
-      ) : null}
+          })
+        ) : null}
+      </div>
     </div>
   );
 }

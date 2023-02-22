@@ -1,13 +1,25 @@
 import { rest } from "msw";
 import { setupServer } from "msw/node";
-import {
-  screen,
-  render,
-  fireEvent,
-  waitFor,
-  within,
-} from "@testing-library/react";
-import App from "./App";
+import { screen, render, fireEvent, waitFor } from "@testing-library/react";
+import MultiSelect from "./index";
+
+const defaultProps = {
+  fetchConfig: {
+    url: `https://api.publicapis.org/entries?title=<title>`,
+    param: "<title>",
+  },
+  selectedValue: "",
+  setSelectedValue: jest.fn(),
+};
+
+const setup = () => {
+  const utils = render(<MultiSelect {...defaultProps} />);
+  const input = screen.getByLabelText("multi-select-search");
+  return {
+    input,
+    ...utils,
+  };
+};
 
 const server = setupServer(
   rest.get("https://api.publicapis.org/entries", (req, res, ctx) => {
@@ -52,14 +64,31 @@ beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-test("renders app", async () => {
-  render(<App />);
-  const input = screen.getByLabelText("multi-select-search");
+test("it should render properly", () => {
+  const { input } = setup();
+  expect(input).toBeInTheDocument();
+});
+
+test("it should handle the change input value", () => {
+  const { input } = setup();
   fireEvent.change(input, { target: { value: "cat" } });
   expect(input.value).toBe("cat");
+});
+
+test("it should open the dropdown and loading text should display", () => {
+  const { input } = setup();
+  const loadingElement = screen.getByText("Loading...");
+  fireEvent.change(input, { target: { value: "dog" } });
+  expect(input.value).toBe("dog");
+  expect(loadingElement).toBeInTheDocument();
+});
+
+test("it should open the dropdown and should display search items", async () => {
+  const { input } = setup();
+  fireEvent.change(input, { target: { value: "cat" } });
+  expect(input.value).toBe("cat");
+
   await waitFor(() => screen.findByText("Cat Facts"));
-  const selectedElement = screen.getByText("Cat Facts");
-  fireEvent.click(selectedElement);
-  const { getByText } = within(screen.getByTestId("selected-values"));
-  expect(getByText("Cat Facts")).toBeInTheDocument();
+  const selectElement = screen.getByText("Cat Facts");
+  expect(selectElement).toBeInTheDocument();
 });
