@@ -1,9 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery } from "react-query";
-import Select from "../select";
+import MultiSelectOptions from "./multiSelectOptions";
 import "./multiSelect.css";
 
-let initialFlag = true;
+async function getData({ queryKey }) {
+  const url = queryKey[1];
+  const res = await fetch(url);
+  return res.json();
+}
 
 function MultiSelect({
   isCacheAble = true,
@@ -11,32 +15,39 @@ function MultiSelect({
   selectedValue,
   setSelectedValue,
 }) {
-  const [options, setOptions] = useState([]);
+  const multiSelectRef = useRef(null);
+  const [show, setShow] = useState(false);
   const [value, setValue] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const { data, isLoading, refetch } = useQuery(
+    ["option-list", fetchConfig.url + value],
+    getData,
+    {
+      enabled: false,
+      staleTime: 60000,
+      cacheTime: 300000,
+    }
+  );
+
+  function handleClickOutside(event) {
+    if (
+      multiSelectRef.current &&
+      !multiSelectRef.current.contains(event.target)
+    ) {
+      setShow(false);
+    }
+  }
 
   useEffect(() => {
-    if (initialFlag) return;
-    setIsLoading(true);
-    const controller = new AbortController();
-    const signal = controller.signal;
-    const url = fetchConfig.url.replace(fetchConfig.param, value);
-    fetch(url, { signal })
-      .then((res) => res.json())
-      .then((res) => {
-        if (res.count) {
-          setOptions(res.entries);
-        } else {
-          setOptions([]);
-        }
-        setIsLoading(false);
-      })
-      .catch(() => {
-        setIsLoading(false);
-      });
+    document.addEventListener("click", handleClickOutside, false);
 
-    return () => controller.abort();
-  }, [value, fetchConfig.param, fetchConfig.url]);
+    return () => {
+      document.removeEventListener("click", handleClickOutside, false);
+    };
+  }, []);
+
+  useEffect(() => {
+    refetch();
+  }, [value, refetch]);
 
   function handleOnSelect(text, isAddable) {
     if (isAddable) {
@@ -61,13 +72,25 @@ function MultiSelect({
   }
 
   function handleInputChange(event) {
-    initialFlag = false;
     setValue(event.target.value);
+    setShow(true);
   }
 
   return (
-    <div className="multiSelect" aria-label="multi-select-dropdown">
-      <div className="multiSelect-input" aria-label="multi-select-input">
+    <div
+      className="multiSelect"
+      aria-label="multi-select-dropdown"
+      ref={multiSelectRef}
+    >
+      <div
+        className="multiSelect-input"
+        aria-label="multi-select-input"
+        onClick={() => {
+          if (data?.count >= 0) {
+            setShow(true);
+          }
+        }}
+      >
         {selectedValue ? (
           <div className="multiSelect-values">{selectedValue}</div>
         ) : (
@@ -79,18 +102,16 @@ function MultiSelect({
           />
         )}
       </div>
-      <div className="multiSelect-options" aria-label="multi-select-options">
-        {isLoading ? (
-          <div className="mulitSelect-loading">Loading...</div>
-        ) : options.length ? (
-          options.map((option, i) => {
-            const key = `${option.API}${i}`;
-            return (
-              <Select key={key} text={option.API} onClick={handleOnSelect} />
-            );
-          })
-        ) : null}
-      </div>
+
+      {show && (
+        <MultiSelectOptions
+          isLoading={isLoading}
+          count={data?.count}
+          options={data?.entries}
+          onClick={handleOnSelect}
+          selectedValue={selectedValue}
+        />
+      )}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import "./select.css";
 
-function Select({ text, onClick }) {
+function Select({ text, onClick, isSelected }) {
   const inputRef = useRef(null);
 
   function handleClick() {
@@ -14,8 +14,9 @@ function Select({ text, onClick }) {
         <input
           type="checkbox"
           ref={inputRef}
-          onClick={handleClick}
+          onChange={handleClick}
           aria-label="multi-select-checkbox"
+          checked={isSelected}
         />
         <span aria-label="multi-select-text">{text}</span>
       </label>
