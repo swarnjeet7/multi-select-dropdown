@@ -1,32 +1,16 @@
 import { useState, useEffect, useRef } from "react";
-import { useQuery } from "react-query";
-import MultiSelectOptions from "./multiSelectOptions";
+import MultiSelectDropdown from "./multiSelectDropdown";
 import "./multiSelect.css";
-
-async function getData({ queryKey }) {
-  const url = queryKey[1];
-  const res = await fetch(url);
-  return res.json();
-}
 
 function MultiSelect({
   isCacheAble = true,
   fetchConfig,
   selectedValue,
   setSelectedValue,
+  url,
 }) {
   const multiSelectRef = useRef(null);
   const [show, setShow] = useState(false);
-  const [value, setValue] = useState("");
-  const { data, isLoading, refetch } = useQuery(
-    ["option-list", fetchConfig.url + value],
-    getData,
-    {
-      enabled: false,
-      staleTime: 60000,
-      cacheTime: 300000,
-    }
-  );
 
   function handleClickOutside(event) {
     if (
@@ -45,71 +29,27 @@ function MultiSelect({
     };
   }, []);
 
-  useEffect(() => {
-    refetch();
-  }, [value, refetch]);
-
-  function handleOnSelect(text, isAddable) {
-    if (isAddable) {
-      setSelectedValue((prevValue) => {
-        if (!prevValue) {
-          return text;
-        }
-        return `${prevValue}, ${text}`;
-      });
-    } else {
-      setSelectedValue((prevValue) => {
-        const prevValueArr = prevValue.split(",");
-        const newValue = prevValueArr.reduce((values, val) => {
-          if (val.trim() !== text) {
-            values.push(val);
-          }
-          return values;
-        }, []);
-        return newValue.join(",");
-      });
-    }
-  }
-
-  function handleInputChange(event) {
-    setValue(event.target.value);
-    setShow(true);
-  }
-
   return (
     <div
-      className="multiSelect"
+      className="multi-select"
       aria-label="multi-select-dropdown"
       ref={multiSelectRef}
     >
       <div
-        className="multiSelect-input"
-        aria-label="multi-select-input"
+        className="multi-select-values"
+        aria-label="multi-select-select"
         onClick={() => {
-          if (data?.count >= 0) {
-            setShow(true);
-          }
+          setShow((prevState) => !prevState);
         }}
       >
-        {selectedValue ? (
-          <div className="multiSelect-values">{selectedValue}</div>
-        ) : (
-          <input
-            type="text"
-            value={value}
-            onChange={handleInputChange}
-            aria-label="multi-select-search"
-          />
-        )}
+        {selectedValue ? selectedValue : "Please select"}
       </div>
 
       {show && (
-        <MultiSelectOptions
-          isLoading={isLoading}
-          count={data?.count}
-          options={data?.entries}
-          onClick={handleOnSelect}
+        <MultiSelectDropdown
+          url={url}
           selectedValue={selectedValue}
+          setSelectedValue={setSelectedValue}
         />
       )}
     </div>

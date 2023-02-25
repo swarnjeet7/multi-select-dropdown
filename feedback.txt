@@ -1,0 +1,10 @@
+1. Understanding of the problem statement - AVERAGE
+2. Reusability - GOOD
+3. Unit test cases - AVERAGE
+4. Material UI - POOR (NOT USED)
+5. Setup - GOOD
+6. React JS principle Code Approach - GOOD
+7. Caching - Done
+    -Debouncing not in place
+    -Calling API on every key press
+    -Not able to search anything else after selecting value from dropdown.

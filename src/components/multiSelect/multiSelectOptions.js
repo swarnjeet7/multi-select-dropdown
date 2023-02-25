@@ -8,34 +8,22 @@ function MultiSelectOptions({
   selectedValue,
 }) {
   if (isLoading) {
-    return (
-      <div className="multiSelect-options" aria-label="multi-select-options">
-        <div className="mulitSelect-loading">Loading...</div>
-      </div>
-    );
+    return <div className="mulit-select-loading">Loading...</div>;
   }
   if (count) {
-    return (
-      <div className="multiSelect-options" aria-label="multi-select-options">
-        {options?.map((option, i) => {
-          return (
-            <Select
-              key={`${option.API}${i}`}
-              text={option.API}
-              onClick={onClick}
-              isSelected={selectedValue.includes(option.API)}
-            />
-          );
-        })}
-      </div>
-    );
+    return options?.map((option, i) => {
+      return (
+        <Select
+          key={`${option.API}${i}`}
+          text={option.API}
+          onClick={onClick}
+          isSelected={selectedValue.includes(option.API)}
+        />
+      );
+    });
   }
   if (count === 0) {
-    return (
-      <div className="multiSelect-options" aria-label="multi-select-options">
-        <div className="mulitSelect-loading">No result found</div>
-      </div>
-    );
+    return <div className="multi-select-not-found">No result found</div>;
   }
 }
 

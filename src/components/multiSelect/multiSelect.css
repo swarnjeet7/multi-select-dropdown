@@ -1,25 +1,52 @@
-.multiSelect {
+.multi-select {
   position: relative;
   display: inline-block;
   width: 250px;
 }
 
-.multiSelect-input {
+.multi-select-values {
+  padding: 10px;
   height: 40px;
   border-radius: 5px;
   border: 1px solid rgba(0, 0, 0, 0.2);
   cursor: pointer;
-}
-
-.multiSelect-values {
-  padding: 10px;
-  height: 38px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.multiSelect-input input {
+.multi-select-values:after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border: 1px solid black;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-45deg);
+  border-width: 0 0 1px 1px;
+}
+
+.multi-select-dropdown {
+  border-radius: 5px;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  width: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 5px rgb(0 0 0 / 25%);
+  background: white;
+}
+
+.multi-select-input {
+  border-bottom: 1px solid lightgray;
+  position: sticky;
+  top: 0;
+}
+
+.multi-select-input input {
   width: 100%;
   padding: 10px;
   height: 38px;
@@ -27,19 +54,25 @@
   border-radius: 5px;
 }
 
-.multiSelect-options {
-  border-radius: 5px;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  max-height: 200px;
-  overflow-y: auto;
-  min-width: 100%;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  box-shadow: 0 0 5px rgb(0 0 0 / 25%);
-  background: white;
+.multi-select-actions {
+  border-top: 1px solid lightgray;
+  padding: 10px;
+  text-align: right;
+  position: sticky;
+  bottom: 0;
+  background-color: white;
 }
 
-.mulitSelect-loading {
+.btn-clear {
+  border-radius: 6px;
+  border: none;
+  background: #6e6ec7;
+  color: white;
+  padding: 10px;
+  min-width: 90px;
+}
+
+.mulit-select-loading,
+.multi-select-not-found {
   padding: 15px;
 }

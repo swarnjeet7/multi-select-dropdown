@@ -16,9 +16,7 @@ function App() {
         </div>
         <MultiSelect
           isCacheAble={false}
-          fetchConfig={{
-            url: `https://api.publicapis.org/entries?title=`,
-          }}
+          url="https://api.publicapis.org/entries?title="
           selectedValue={selectedValue}
           setSelectedValue={setSelectedValue}
         ></MultiSelect>
